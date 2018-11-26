@@ -14,7 +14,7 @@
                         </MenuItem>
                         <MenuItem name="1-3">
                             <Icon type="ios-settings"></Icon>
-                            <span>Option 3</span>
+                            <span>串口通讯</span>
                         </MenuItem>
                     </Menu>
                 </Sider>
@@ -50,7 +50,7 @@
                     </Row>
                 </Header>
                 <Content :style="{margin: '20px', background: '#fff', minHeight: '260px'}">
-                    Content
+                    <button @click="sendMsg">串口发送</button>
                 </Content>
             </Layout>
         </Layout>
@@ -59,6 +59,19 @@
 
 <script>
 // import SystemInformation from './LandingPage/SystemInformation'
+const Serialport = require("serialport");
+
+Serialport.list((err, ports) => {
+  ports.forEach(port => {
+    console.log('共有几个端口：' + port.comName);
+  });
+});
+
+const port = new Serialport('COM1', function (err) {
+  if (err) {
+    return console.log('Error: ', err.message)
+  }
+})
 
 export default {
   name: "landing-page",
@@ -78,6 +91,14 @@ export default {
   methods: {
     collapsedSider() {
       this.$refs.side1.toggleCollapse();
+    },
+    sendMsg() {
+      port.write("666666", function(err) {
+        if (err) {
+          return console.log("Error on write: ", err.message);
+        }
+        console.log("message written");
+      });
     }
   }
 };
@@ -139,6 +160,6 @@ export default {
   font-size: 22px;
 }
 .menu-top {
-    height: 60px;
+  height: 60px;
 }
 </style>
