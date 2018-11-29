@@ -7,8 +7,9 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'landing-page',
-      component: require('@/components/LandingPage').default,
+      name: 'main-page',
+      redirect: '/communication',//设置默认指向的路径
+      component: require('@/components/mainPage').default,
       children: [
         {
           path: 'NewPage',

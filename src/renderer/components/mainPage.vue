@@ -10,7 +10,7 @@
           :collapsed-width="78"
           v-model="isCollapsed"
         >
-          <Menu active-name="1-2" theme="dark" width="auto" :class="menuitemClasses">
+          <Menu active-name="1-3" theme="dark" width="auto" :class="menuitemClasses">
             <MenuItem name="1-1">
               <Icon type="ios-navigate"></Icon>
               <span>
@@ -65,8 +65,8 @@
           </Row>
         </Header>
         <Content :style="{margin: '8px', background: '#fff', minHeight: '260px'}">
+          <!-- 嵌套路由 -->
           <router-view></router-view>
-          <!-- <button @click="sendMsg">串口发送</button> -->
         </Content>
       </Layout>
     </Layout>
@@ -74,28 +74,17 @@
 </template>
 
 <script>
-// import SystemInformation from './LandingPage/SystemInformation'
 // const Serialport = require("serialport");
 
 export default {
-  name: "landing-page",
+  name: "main-page",
   data() {
     return {
       isCollapsed: false
     };
   },
   created() {
-    // this.$SerialPort.list((err, ports) => {
-    //   ports.forEach(port => {
-    //     console.log("共有几个端口：" + port.comName);
-    //   });
-    // });
 
-    // const port = new this.$SerialPort("COM1", function(err) {
-    //   if (err) {
-    //     return console.log("Error: ", err.message);
-    //   }
-    // });
   },
   computed: {
     rotateIcon() {
@@ -108,14 +97,6 @@ export default {
   methods: {
     collapsedSider() {
       this.$refs.side1.toggleCollapse();
-    },
-    sendMsg() {
-      port.write("666666", function(err) {
-        if (err) {
-          return console.log("Error on write: ", err.message);
-        }
-        console.log("message written");
-      });
     }
   }
 };

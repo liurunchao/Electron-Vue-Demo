@@ -47,7 +47,7 @@
           <Col span="24">
             <label>接收报文：</label>
             <div>
-              <Input v-model="receiveFrame" type="textarea" :autosize="{minRows: 20,maxRows: 40}" placeholder="接收报文..."></Input>
+              <Input id="showText" v-model="showReceiveStr" type="textarea" :autosize="{minRows: 10,maxRows: 12}" placeholder="接收报文..."></Input>
             </div>
           </Col>
         </Row>
@@ -75,8 +75,9 @@ export default {
   name: "communication",
   data() {
     return {
-      sendFrame: "FEFEFEFE68AAAAAAAAAAAA681300DF16",
+      sendFrame: "",
       receiveFrame: "",
+      showReceiveStr : '',
       portInstance: {},
       serialPort: {
         portList: [],
@@ -85,7 +86,7 @@ export default {
       },
       selectedPort: {
         port: "COM1",
-        baudRate: 1200,
+        baudRate: 2400,
         parity: "even"
       },
       SPStatus: true
@@ -97,7 +98,6 @@ export default {
       let showMsg;
       if (this.SPStatus) showMsg = "打开串口";
       if (!this.SPStatus) showMsg = "关闭串口";
-      
       return showMsg;
     }
   },
@@ -110,16 +110,20 @@ export default {
     });
   },
   methods: {
+    buf2hex(buffer) { // buffer is an ArrayBuffer
+      return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
+    },
     giveFrame() {
       this.sendFrame = 'FEFEFEFE68AAAAAAAAAAAA681300DF16';
     },
     clearMessage () {
       this.sendFrame = '';
-      this.receiveFrame = '';
+      this.showReceiveStr = '';
       this.$Message.success('清除成功！');
     },
     changeSPStatus() {
       let showMsg;
+      let receiveStr;
       let openOptions = {
         'baudRate' : parseInt(this.selectedPort.baudRate),
         'parity' : this.selectedPort.parity,
@@ -142,6 +146,15 @@ export default {
             this.SPStatus = !this.SPStatus;
           }
         });
+        // 监听数据
+        if (this.portInstance) {
+            this.portInstance.on('data', data => {
+              this.receiveFrame = this.buf2hex(data).toUpperCase();
+              receiveStr = '接收数据：';
+              receiveStr += this.receiveFrame;
+              this.showReceiveStr += receiveStr + '\n';
+            });
+        }
       } else {
         if (this.portInstance.isOpen) {
           this.portInstance.close();
@@ -152,11 +165,12 @@ export default {
     },
     sendMsg() {
       let headStr;
+      let sendStr;
       if (!this.SPStatus) {
-        this.portInstance.write(this.sendFrame, err => {
+        this.portInstance.write(this.sendFrame, 'hex', err => {
           if (err) return console.log("Error on write: ", err.message);
           headStr = '发送报文：';
-          this.receiveFrame += headStr + this.sendFrame + '\n';
+          this.showReceiveStr += headStr + this.sendFrame + '\n';
         });
       } else {
          this.$Message.warning('请先打开串口！');
